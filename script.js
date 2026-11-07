@@ -1,5 +1,5 @@
 const options = {
-    key: 'XWCJRpwnum2Pv8EqAhMmVGkUhd7qtqnZ',
+    key: 'ahy9QNnV7WI7IR6JyFI7kqSSOVwQYHBt',
     verbose: true,
     lat: 13.9918,
     lon: 110.6035,
@@ -22,7 +22,7 @@ async function getWeatherData(lat, lon, env) {
     })
   });
   return await response.json();
-};
+}; 
 
 windyInit(options, windyAPI => {
     const { map, store } = windyAPI;
@@ -95,7 +95,7 @@ windyInit(options, windyAPI => {
 
     // 3. การตั้งค่าเลเยอร์เริ่มต้น
     store.set('overlay', 'vvel');
-    store.set('level', '850h');
+    store.set('level', '200h');
     store.set('particlesAnim', 'slow');
 
     // 4. ฟังก์ชันสำหรับปุ่มกด (Global Functions)
@@ -123,4 +123,21 @@ windyInit(options, windyAPI => {
         btn.innerText = 'Start Analyzer';
 		alert("Analysis Complete");
 	};
+	// วางโค้ดนี้ในเลเยอร์บรรยากาศ (900, 850, 500, 200 hPa)
+	window.addEventListener('message', function(event) {
+		// รับข้อมูลพิกัดจาก Dashboard หลัก
+		if (event.data.type === 'MAP_SYNC') {
+			const { lat, lon, zoom } = event.data;
+			
+			// ถ้าเลเยอร์นี้ใช้ Leaflet (ตัวแปร L.map)
+			if (typeof map !== 'undefined') {
+				map.setView([lat, lon], zoom, { animate: false });
+			} 
+			// หรือถ้าเลเยอร์นี้เป็น URL Redirect ให้เปลี่ยนพิกัดผ่าน URL
+			else {
+				// ปรับ logic ตามลักษณะการแสดงผลของ Worker คุณ
+				console.log("Syncing to:", lat, lon, zoom);
+			}
+		}
+	});
 });
