@@ -1,5 +1,5 @@
 const options = {
-	key: 'XWCJRpwnum2Pv8EqAhMmVGkUhd7qtqnZ'
+	key: 'XWCJRpwnum2Pv8EqAhMmVGkUhd7qtqnZ',
     verbose: true,
     lat: 13.9918,
     lon: 110.6035,
