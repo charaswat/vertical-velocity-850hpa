@@ -1,9 +1,9 @@
 const options = {
 	key: 'XWCJRpwnum2Pv8EqAhMmVGkUhd7qtqnZ',
     verbose: true,
-    lat: 13.9918,
-    lon: 110.6035,
-    zoom: 5,
+    lat: 13.7367, 
+    lon: 100.5231, 
+    zoom: 6,
 };
 
 async function getWeatherData(lat, lon, env) {
@@ -145,25 +145,25 @@ windyInit(options, windyAPI => {
 windyInit(options, windyAPI => {
     const { map } = windyAPI;
 
-    // 1. ส่งพิกัดออกเมื่อตัวเองขยับ
-    map.on('moveend zoomend', () => {
-        // ส่งเฉพาะเมื่อ User เป็นคนลากเอง (มี Focus)
-        if (document.hasFocus()) {
-            const center = map.getCenter();
-            window.parent.postMessage({
-                type: 'LAYER_MOVE',
-                lat: center.lat,
-                lon: center.lng,
-                zoom: map.getZoom()
-            }, '*');
-        }
-    });
+    // ตรวจสอบว่า map มีตัวตนจริงก่อนทำงานต่อ
+    if (!map) {
+        console.error("Windy Map instance is null or undefined");
+        return;
+    }
 
-    // 2. รับพิกัดจากหน้าหลักเพื่อปรับตามเพื่อน
+    // ตั้งค่าประสิทธิภาพ (เปิด GPU)
+    if (map.options) {
+        map.options.preferCanvas = true;
+        map.options.zoomSnap = 0.5;
+        map.options.zoomDelta = 0.5;
+    }
+
+    // เพิ่ม Listener สำหรับ Master-Slave Sync
     window.addEventListener('message', (event) => {
-        if (event.data.type === 'MAP_SYNC') {
-            const { lat, lon, zoom } = event.data;
-            map.setView([lat, lon], zoom, { animate: true });
+        const { type, center, zoom } = event.data;
+        if (type === 'MAP_SYNC' && center && zoom) {
+            // ใช้ Optional Chaining ป้องกัน error หาก map หายไปภายหลัง
+            map.setView?.(center, zoom, { animate: false });
         }
     });
 });
